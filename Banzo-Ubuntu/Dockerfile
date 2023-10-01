@@ -1,8 +1,9 @@
 # Use the official Ubuntu 22.04 image as the base image
-FROM ubuntu:____
+FROM ubuntu:22.04
 
 # Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=${DEBIAN_FRONTEND}
 
 # Set the locale
 RUN apt-get update && \
@@ -33,24 +34,35 @@ RUN apt-get update && \
     python3-virtualenv \
     curl \
     htop \
-    neofetch \
-    && rm -rf /var/lib/apt/lists/*
+    neofetch
 
-# Set the root password 
-RUN echo '____:____' | chpasswd
+# Set the root password (replace 'your_root_password' with your desired password)
+ARG ROOT_PASSWORD
+RUN echo 'root:${ROOT_PASSWORD}' | chpasswd
 
-# Create a non-root user and set credentials
-ARG USERNAME=____
-ARG PASSWORD=____
+# Create User1 with no permissions and echo message for sudo
+ARG USER1
+RUN useradd -m -s /bin/bash ${USER1} && \
+    passwd -d ${USER1} && \
+    echo "${USER1} ALL=(ALL) NOPASSWD: /bin/echo" > /etc/sudoers.d/${USER1}
 
-RUN useradd -m -s /bin/bash -G sudo ${USERNAME} && \
-    echo "${USERNAME}:${PASSWORD}" | chpasswd
+# Create User2 with password protection and permissions
+ARG USER2
+ARG USER2_PASSWORD
+RUN useradd -m -s /bin/bash ${USER2} && \
+    echo '${USER2}:${USER2_PASSWORD}' | chpasswd && \
+    usermod -aG sudo ${USER2}
 
 # Expose ports (e.g., for Jupyter Notebook)
-EXPOSE ____
+EXPOSE 8888
 
 # Set the working directory
-WORKDIR /home/${USERNAME}
+WORKDIR /home/${USER1}
 
-# Entry point to ask for a password
-CMD ["bash", "-c", "echo 'Enter password:' && sudo -S -u ${USERNAME} /bin/bash"]
+# Entry point to start the container as User1
+USER ${USER1}
+CMD ["bash"]
+
+
+# docker build command to build the image 
+# docker build -t my-image --build-arg ROOT_PASSWORD=myrootpassword --build-arg USER1=user1 --build-arg USER2=user2 --build-arg USER2_PASSWORD=user2password .
