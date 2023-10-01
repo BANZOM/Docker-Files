@@ -1,6 +1,13 @@
 # Use the official Ubuntu 22.04 image as the base image
 FROM ubuntu:22.04
 
+# Arguments
+ARG ROOT_PASSWORD
+ARG USER1
+ARG USER2
+ARG USER2_PASSWORD
+
+
 # Set environment variables
 ARG DEBIAN_FRONTEND=noninteractive
 ENV DEBIAN_FRONTEND=${DEBIAN_FRONTEND}
@@ -36,22 +43,22 @@ RUN apt-get update && \
     htop \
     neofetch
 
-# Set the root password (replace 'your_root_password' with your desired password)
-ARG ROOT_PASSWORD
-RUN echo 'root:${ROOT_PASSWORD}' | chpasswd
 
 # Create User1 with no permissions and echo message for sudo
-ARG USER1
+
 RUN useradd -m -s /bin/bash ${USER1} && \
     passwd -d ${USER1} && \
     echo "${USER1} ALL=(ALL) NOPASSWD: /bin/echo" > /etc/sudoers.d/${USER1}
 
 # Create User2 with password protection and permissions
-ARG USER2
-ARG USER2_PASSWORD
+
 RUN useradd -m -s /bin/bash ${USER2} && \
-    echo '${USER2}:${USER2_PASSWORD}' | chpasswd && \
+    echo "${USER2}:${USER2_PASSWORD}" | sudo chpasswd && \
     usermod -aG sudo ${USER2}
+
+# Set the root password (replace 'your_root_password' with your desired password)
+RUN echo "root:${ROOT_PASSWORD}" | sudo chpasswd
+
 
 # Expose ports (e.g., for Jupyter Notebook)
 EXPOSE 8888
