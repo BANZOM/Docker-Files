@@ -2,11 +2,10 @@
 FROM ubuntu:22.04
 
 # Arguments
-ARG ROOT_PASSWORD
 ARG USER1
 ARG USER2
 ARG USER2_PASSWORD
-
+ARG ROOT_PASSWORD
 
 # Set environment variables
 ARG DEBIAN_FRONTEND=noninteractive
@@ -60,8 +59,10 @@ RUN useradd -m -s /bin/bash ${USER2} && \
 RUN echo "root:${ROOT_PASSWORD}" | sudo chpasswd
 
 
-# Expose ports (e.g., for Jupyter Notebook)
+# Expose ports
 EXPOSE 8888
+EXPOSE 5000
+EXPOSE 80
 
 # Set the working directory
 WORKDIR /home/${USER1}
@@ -72,4 +73,4 @@ CMD ["bash"]
 
 
 # docker build command to build the image 
-# docker build -t my-image --build-arg ROOT_PASSWORD=myrootpassword --build-arg USER1=user1 --build-arg USER2=user2 --build-arg USER2_PASSWORD=user2password .
+# docker build -t my-image --build-arg ROOT_PASSWORD=myrootpassword --build-arg USER1=user1 --build-arg USER2=user2 --build-arg USER2_PASSWORD=user2password . 
