@@ -42,10 +42,15 @@ RUN apt-get update && \
     htop \
     neofetch
 
-# Create a non-root user 
+# Create a non-root user with sudo privileges
 RUN useradd -m -s /bin/bash ${USERNAME} && \
-    echo "${USERNAME}:${USER_PASSWORD}" | sudo chpasswd && \
+    echo "${USERNAME}:${PASSWORD}" | sudo chpasswd && \
     usermod -aG sudo ${USERNAME}
+
+# Create a non-root user: guest
+RUN useradd -m -s /bin/bash guest && \
+    passwd -d guest && \
+    echo "guest ALL=(ALL) NOPASSWD: /bin/echo" > /etc/sudoers.d/guest
 
 # Expose ports
 EXPOSE 80 443 8080 8888 5000 
@@ -54,7 +59,7 @@ EXPOSE 80 443 8080 8888 5000
 ENV DEBIAN_FRONTEND=newt
 
 # Set the working directory
-WORKDIR /home/${USER}/
+WORKDIR /home/${USERNAME}/
 
 # Entry point to start the container as User
-USER ${USERNAME}
+USER guest
