@@ -1,7 +1,7 @@
 FROM Ubuntu:22.04
 
 # Arguments
-ARG USER=ubuntu
+ARG USERNAME=ubuntu
 ARG PASSWORD=ubuntu
 
 # Set environment variables
@@ -55,3 +55,6 @@ ENV DEBIAN_FRONTEND=newt
 
 # Set the working directory
 WORKDIR /home/${USER}/
+
+# Entry point to start the container as User
+USER ${USERNAME}
