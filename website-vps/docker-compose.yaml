@@ -1,0 +1,32 @@
+services:
+  banzo-builds:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: banzo_ubuntu_os_container
+    image: banzo-website-vps:latest
+    restart: always
+    tty: true
+    stdin_open: true
+    environment:
+      - DEBIAN_FRONTEND=noninteractive
+    volumes:
+      # Mount your home directory or other paths for persistent storage
+      - ~/data:/home/ubuntu/data
+    ports:
+      # Expose ports if you run any applications inside the container
+      - "8080:8080"
+      - "42:22"  # If you want to SSH into the container
+    deploy:
+      resources:
+        limits:
+          cpus: "0.50"
+          memory: "10g"
+    command: ["/bin/bash"]
+    networks:
+      - banzo-network
+
+networks:
+  banzo-network:
+    driver: bridge
+
