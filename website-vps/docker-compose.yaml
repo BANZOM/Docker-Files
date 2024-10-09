@@ -4,8 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: banzo_ubuntu_os_container
-    image: banzo-website-vps:latest
+    image: banzo/website-vps:latest
     restart: always
+    hostname: banzovps
     tty: true
     stdin_open: true
     environment:
@@ -13,16 +14,13 @@ services:
     volumes:
       # Mount your home directory or other paths for persistent storage
       - ~/data:/home/ubuntu/data
+      - ubuntu-home:/home/ubuntu
     ports:
       # Expose ports if you run any applications inside the container
       - "8080:8080"
       - "42:22"  # If you want to SSH into the container
-    deploy:
-      resources:
-        limits:
-          cpus: "0.50"
-          memory: "10g"
-    command: ["/bin/bash"]
+    command: ["/bin/bash", "-c", "/home/ubuntu/startup.sh && tail -f /dev/null"]
+   # command: ["/bin/bash", "-c", "tail -f /dev/null"]
     networks:
       - banzo-network
 
@@ -30,3 +28,5 @@ networks:
   banzo-network:
     driver: bridge
 
+volumes:
+  ubuntu-home:
