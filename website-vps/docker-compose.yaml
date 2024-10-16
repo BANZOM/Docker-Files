@@ -8,6 +8,7 @@ services:
     restart: always
     hostname: banzovps
     tty: true
+    privileged: true
     stdin_open: true
     environment:
       - DEBIAN_FRONTEND=noninteractive
@@ -15,14 +16,24 @@ services:
       # Mount your home directory or other paths for persistent storage
       - ~/data:/home/ubuntu/data
       - ubuntu-home:/home/ubuntu
-    ports:
+   # ports:
       # Expose ports if you run any applications inside the container
-      - "8080:8080"
-      - "42:22"  # If you want to SSH into the container
+      # - "8080:8080"
+      # - "42:22"  # If you want to SSH into the container
     command: ["/bin/bash", "-c", "/home/ubuntu/startup.sh && tail -f /dev/null"]
    # command: ["/bin/bash", "-c", "tail -f /dev/null"]
     networks:
       - banzo-network
+  
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: banzo-stg-env
+    restart: always
+    command: ["/bin/bash", "-c", "tunnel --no-autoupdate run --token $(cat /run/secrets/cloudflared_token)"]
+    networks:
+      - banzo-network
+    secrets:
+      - cloudflared_token
 
 networks:
   banzo-network:
@@ -30,3 +41,7 @@ networks:
 
 volumes:
   ubuntu-home:
+
+secrets:
+  cloudflared_token:
+    file: ./cloudflared_token.txt
