@@ -1,0 +1,14 @@
+services:
+  kasm_terminal:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: banzo-devon-image:latest
+    hostname: banzo.tech
+    container_name: banzo-k-devon
+    environment:
+      VNC_PW: mydevon
+    stdin_open: true
+    tty: true
+    restart: always 
+    
