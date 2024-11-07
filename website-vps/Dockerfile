@@ -18,6 +18,8 @@ RUN apt-get update && apt-get install -y \
     htop \
     gnupg2 \
     nginx \
+    git \
+    webhook \
     ca-certificates \
     bash-completion \
     && apt-get clean \

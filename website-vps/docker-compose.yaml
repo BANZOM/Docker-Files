@@ -1,4 +1,12 @@
 services:
+  banzo-playground:
+    image: ubuntu:22.04
+    container_name: banzo-playground
+    restart: always
+    command: /bin/bash
+    volumes:
+      - ubuntu-playground:/root
+    tty: true
   banzo-builds:
     build:
       context: .
@@ -15,33 +23,25 @@ services:
     volumes:
       # Mount your home directory or other paths for persistent storage
       - ~/data:/home/ubuntu/data
-      - ubuntu-home:/home/ubuntu
+      #- ubuntu-home:/home/ubuntu
    # ports:
       # Expose ports if you run any applications inside the container
       # - "8080:8080"
       # - "42:22"  # If you want to SSH into the container
     command: ["/bin/bash", "-c", "/home/ubuntu/startup.sh && tail -f /dev/null"]
    # command: ["/bin/bash", "-c", "tail -f /dev/null"]
-    networks:
-      - banzo-network
-  
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: banzo-stg-env
+    
+  tunnel:
+    container_name: banzo_cfd
+    image: cloudflare/cloudflared
     restart: always
-    command: ["/bin/bash", "-c", "tunnel --no-autoupdate run --token $(cat /run/secrets/cloudflared_token)"]
-    networks:
-      - banzo-network
-    secrets:
-      - cloudflared_token
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZTBhYjBkZDIxYjU2NGI4YzdkODllMjZjMTZmMjVmZTYiLCJ0IjoiMmQ3MWQxMjItMWUyNi00MmEzLWJiMDgtN2M4ZDI1YjljMDg3IiwicyI6IlkyUTJPRFJqWXpjdFptRTRNeTAwTmpBMkxXRmxOMlV0Tnpnek9HWmxZVE01T1dVMyJ9
 
 networks:
   banzo-network:
     driver: bridge
 
 volumes:
-  ubuntu-home:
-
-secrets:
-  cloudflared_token:
-    file: ./cloudflared_token.txt
+  ubuntu-playground:
